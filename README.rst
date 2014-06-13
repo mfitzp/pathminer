@@ -7,9 +7,7 @@ Biocyc (+MetaCyc) web services. It is built on the separate package `biocyc` whi
 handles the actual connections.
 
 This algorithm has successfully been used in the Pathomx software to identify gene
-and metabolite changes within pathways. 
-
-Parameters to the function as follows:
+and metabolite changes within pathways. Parameters to the function as follows:
 
 .. code:: python
 

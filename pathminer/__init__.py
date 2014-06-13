@@ -1,0 +1,2 @@
+from .pathminer import mining
+

@@ -28,9 +28,6 @@ Parameters to the function as follows:
     relative: 'scale' scores to the size of pathways, to reduce influence of pathway size
 
 
-target=TARGET_PATHWAYS, algorithm='c', no_of_results=5, shared=True, relative=False
-
-
 Simple usage is as follows.
 
 .. code:: python

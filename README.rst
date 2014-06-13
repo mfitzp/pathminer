@@ -11,6 +11,8 @@ and metabolite changes within pathways.
 
 Parameters to the function as follows:
 
+.. code:: python
+
     data: a list of tuples in the format (biocyc_id, score); multiple datasets as a list of lists
     target: what to mine - pathways, reactions or compartments (not supported yet)
     algorithm: one of 'c', 'u', 'd', 'm', 't' 

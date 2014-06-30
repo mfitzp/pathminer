@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     name='pathminer',
-    version='0.0.1',
+    version='0.0.2',
     author='Martin Fitzpatrick',
     author_email='martin.fitzpatrick@gmail.com',
     packages=['pathminer'],

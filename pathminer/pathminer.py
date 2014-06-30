@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import biocyc
 import logging
 
 from collections import defaultdict
@@ -38,70 +37,59 @@ def mining(data, target=TARGET_PATHWAYS, algorithm='c', no_of_results=5, shared=
     if type(data) != list:
         data = [data]
 
-    for cur_data in data:
-        if cur_data is None:
+    # Data provided as a list of tuples (ENTITY, data)
+    for n, entity_data in enumerate( data ):
+        if entity_data is None:
+            continue
+        entity, score = entity_data
+
+        if entity is None or score is None:
             continue
 
-        # Data provided as a list of tuples (ENTITY, data)
-        for n, entity_data in enumerate( cur_data ):
-            entity, score = entity_data
-
-            # Get the entity's segments
-            s = dict()
+        # Get the entity's segments
+        try:
+            if target == TARGET_PATHWAYS:
+                segments = entity.pathways
+        
+            elif target == TARGET_REACTIONS:
+                segments = entity.reactions
             
-            # Set up the lookups
-            try:
-                s[TARGET_PATHWAYS] = entity.pathways
-            except:
-                pass
+            elif target == TARGET_COMPARTMENTS:
+                segments = entity.compartments
+        except:
+            continue
 
-            try:
-                s[TARGET_REACTIONS] = entity.reactions
-            except:
-                pass
+        if segments == []:
+            continue
 
-            try:
-                s[TARGET_COMPARTMENTS] = entity.compartments
-            except:
-                pass
-                
-            # We can't test the target on this entity
-            if target not in s:
-                continue
-            
-            segments = s[ target ]
+        if shared:
+            # Share the change score between the associated segments
+            # this prevents compounds having undue influence
+            score = float(score) / len(segments)
+        
 
-            if segments == []:
-                continue
-
-            if shared:
-                # Share the change score between the associated segments
-                # this prevents compounds having undue influence
-                score = float(score) / len(segments)
-            
-
-            for p in segments:
-                mining_val = {
-                    'c': abs(score),
-                    'u': max(0, score),
-                    'd': abs(min(0, score)),
-                    'm': 1.0,
-                    't': score,
-                    }
-                segment_scores[p] += mining_val[algorithm]
+        for p in segments:
+            mining_val = {
+                'c': abs(score),
+                'u': max(0, score),
+                'd': abs(min(0, score)),
+                'm': 1.0,
+                't': score,
+                }
+            segment_scores[p] += mining_val[algorithm]
 
 
-        # If we're using tendency scaling; abs the scores here
-        if algorithm == 't':
-            for p, v  in list(segment_scores.items()):
-                segment_scores[p] = abs(v)
+    # If we're using tendency scaling; abs the scores here
+    if algorithm == 't':
+        for p, v  in list(segment_scores.items()):
+            segment_scores[p] = abs(v)
 
 
-        # If we're pruning, then remove any segments not in keep_segments
-        if relative:
-            logging.info("Scaling scores to target sizes...")
-            for p, v in list(segment_scores.items()):
-                segment_scores[p] = float(v) / len(p.reactions)
+    # If we're pruning, then remove any segments not in keep_segments
+    if relative:
+        logging.info("Scaling scores to target sizes...")
+        for p, v in list(segment_scores.items()):
+            segment_scores[p] = float(v) / len(p.reactions)
 
     # Check if we've got any data
     assert segment_scores, "Not enough data to do anything useful. Add more data, or change the mining type."
